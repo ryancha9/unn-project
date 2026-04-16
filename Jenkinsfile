@@ -18,7 +18,8 @@ pipeline {
         stage('Build Image') {
             steps {
                 script {
-                    app = docker.build("${REGISTRY}/${PROJECT}/${IMAGE}")
+                    sh "docker build -t ${REGISTRY}/${PROJECT}/${IMAGE}:${TAG} ."
+                    sh "docker tag ${REGISTRY}/${PROJECT}/${IMAGE}:${TAG} ${REGISTRY}/${PROJECT}/${IMAGE}:latest"
                 }
             }
         }
@@ -26,10 +27,8 @@ pipeline {
         stage('Push Image') {
             steps {
                 script {
-                    docker.withRegistry("https://${REGISTRY}", "harbor-reg") {
-                        app.push(TAG)
-                        app.push("latest")
-                    }
+                    sh "docker push ${REGISTRY}/${PROJECT}/${IMAGE}:${TAG}"
+                    sh "docker push ${REGISTRY}/${PROJECT}/${IMAGE}:latest"
                 }
             }
         }
